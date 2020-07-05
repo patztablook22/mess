@@ -1,0 +1,31 @@
+#! /usr/bin/ruby
+
+require 'optparse'
+require 'json'
+
+require_relative 'includes/options'
+require_relative 'includes/tool'
+require_relative 'includes/tree'
+require_relative 'includes/chat'
+require_relative 'includes/dump'
+require_relative 'includes/plot'
+require_relative 'includes/stat'
+
+tree = Tree.new( $options[:archive] )
+tree.index( ! $options[:index] )
+
+unless $options[:index]
+  print "select: "
+  $options[:index] = gets.to_i
+  puts
+end
+
+chat = tree.select( $options[:index] )
+unless chat.valid?
+  puts "invalid chat"
+  exit 1
+end
+
+stat = Stat.new(chat)
+plot = stat.dailyMsgs
+puts plot
