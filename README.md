@@ -2,7 +2,7 @@
 
 a simple ruby messenger statistician
 
-## Dependencies**
+## Dependencies
   - ruby
 
 ## Facebook archive
