@@ -55,12 +55,12 @@ class Chat
     @hash["title"]
   end
 
-  def nicks
-    nicks = []
+  def usrs
+    usrs = []
     @hash["participants"].each do |p|
-      nicks += [ p["name"] ]
+      usrs += [ p["name"] ]
     end
-    nicks
+    usrs
   end
 
   def msgs
