@@ -2,11 +2,11 @@ class Dump
 
   @fd
 
-  def initialize (path)
+  def initialize( path )
 
     begin
 
-      @fd = File.new(path, 'r+')
+      @fd = File.new(path, 'w')
       unless @fd
         throw
       end
@@ -22,11 +22,27 @@ class Dump
 
   def write stat
 
+    print "dumping... "
+
     r = 0
     while row = stat.row(r)
-      @fd.write(row + "\n")
+      
+      row.each do |plot|
+
+        plot.each do |cell|
+          @fd.write(cell + $options[:separator].to_s)
+        end
+
+        @fd.write($options[:margin].to_s)
+
+      end
+
+      @fd.write("\n")
       r += 1
+
     end
+
+    puts "done"
 
   end
 

@@ -4,34 +4,33 @@ class Stat
   @plot
   @@index = {}
 
-  def initialize (chat)
+  def initialize( chat )
     @chat = chat
     @plot = []
   end
 
-  def self.index (verbose = true)
+  def self.index( verbose = true )
     
     if verbose
       puts "\nplot index:"
     end
 
-    i = ?a
+    a = "asdfghjklqwertyuiopzxcvbnmASDFGHJKLQWERTYUIOPZXCVBNM"
+    i = 0
     ObjectSpace.each_object(Class).select do |cl|
 
      unless cl < Plot
        next
      end
 
-     @@index[i] = cl
+     @@index[a[i]] = cl
      if verbose
-       puts tab(i, 3, true) + " | #{ cl::Name}"
+       puts tab(a[i], 3, true) + " | #{ cl::Name}"
      end
 
-     i = (i.ord + 1 ).chr
+     i += 1
 
-     if i == ?{
-       i = ?A
-     elsif i == ?[
+     if i > a.length - 1
        puts "WARN: suffering from success... too many plot options"
        break
      end
@@ -42,7 +41,7 @@ class Stat
 
   end
 
-  def select (index)
+  def select( index )
 
     index.each_char do |i|
       unless @@index.include? i
@@ -59,7 +58,12 @@ class Stat
 
   def run
 
+    print "processing... "
+    bar = Bar.new(@chat.size)
+
     @chat.msgs do |msg|
+
+      print bar
 
       @plot.each do |plot|
         plot.push msg
@@ -67,21 +71,32 @@ class Stat
 
     end
 
+    print "reviewing... "
+    bar = Bar.new(@plot.size)
+
+    @plot.each do |plot|
+      print bar
+      plot.post
+    end
+
   end
 
-  def row (r)
+  def row( r )
 
-    buf = ""
+    row = []
+    done = true
 
     @plot.each do |plot|
 
-      c = 0
+      buf = []
+
       if r < 2
         p = plot.head(r)
+        done = false
       else
         p = plot.pull
-        if p.nil? 
-          return nil
+        unless p.nil?
+          done = false
         end
       end
 
@@ -89,22 +104,31 @@ class Stat
         p = [p]
       end
 
-      p.each do |pp|
+      p.each do |axis|
         
-        unless pp.class == Array
-          pp = [pp]
+        unless axis.class == Array
+          axis = [axis]
         end
 
-        pp.each do |cell|
-          buf += cell.to_s + "\t"
-          c += 1
+        axis.each do |cell|
+          buf += [cell.to_s]
         end
 
       end
 
+      for i in 1 .. plot.cols - buf.length
+        buf += [""]
+      end
+
+      row += [buf]
+
+    end
+  
+    if done
+      return nil
     end
 
-    buf
+    row
 
   end
 

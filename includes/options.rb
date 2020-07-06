@@ -1,7 +1,8 @@
 $options = {
     :facebook   => ".",
     :output     => "mess.txt",
-    :separator  => "|",
+    :separator  => "\t",
+    :margin     => "\t",
     :archived   => false,
     :chat       => nil,
     :plot       => nil,
@@ -39,7 +40,14 @@ def parse
       if str.nil? or str.empty?
         return
       end
-      $options[:separator] = separator
+      $options[:separator] = str
+    end
+
+    opts.on("-m", "--margin [STR]", "output plot margin") do |str|
+      if str.nil? or str.empty?
+        return
+      end
+      $options[:margin] = str
     end
 
     opts.on("-c", "--chat [NUM]", "select chat") do |chat|

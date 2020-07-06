@@ -3,7 +3,7 @@ class Chat
   @hash
   @path
 
-  def initialize (path, peek = false)
+  def initialize( path, peek = false )
   
     unless File.file?(path + "/message_1.json")
       return
@@ -67,6 +67,10 @@ class Chat
     @hash["messages"].each do |msg|
       yield msg
     end
+  end
+
+  def size
+    @hash["messages"].length
   end
 
 end

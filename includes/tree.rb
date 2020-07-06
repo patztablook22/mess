@@ -3,7 +3,7 @@ class Tree
   @root
   @index
 
-  def initialize (path)
+  def initialize( path )
 
     @index = {}
 
@@ -28,7 +28,7 @@ class Tree
 
   end
 
-  def check (root)
+  def check( root )
 
     unless File.directory? root
       return false
@@ -46,7 +46,7 @@ class Tree
 
   end
 
-  def index (archived, verbose = false)
+  def index( archived, verbose = false )
 
     dirs = ["inbox"]
     chats = []
@@ -89,7 +89,7 @@ class Tree
 
   end
 
-  def select (i)
+  def select( i )
     Chat.new( @index[i.to_i].to_s )
   end
 

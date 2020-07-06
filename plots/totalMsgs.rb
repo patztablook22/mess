@@ -3,9 +3,10 @@ class TotalMsgs < Plot
   Name = "total messages"
 
   def initialize chat
-    super chat
-    @desc = ["user", "total"]
-    @cols = 2
+    super
+    @descX = "user"
+    @descY = "messages"
+    @cols  = 2
   end
 
   def push msg
