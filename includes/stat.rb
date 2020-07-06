@@ -1,63 +1,111 @@
 class Stat
 
   @chat
+  @plot
+  @@index = {}
 
   def initialize (chat)
     @chat = chat
+    @plot = []
   end
 
-  def totalMsgs
-    plot = Plot.new( "total messages", 1 )
-
-    @chat.nicks.each do |nick|
-      plot.set(nick, 0)
+  def self.index (verbose = true)
+    
+    if verbose
+      puts "\nplot index:"
     end
 
-    @chat.msgs do |msg|
-      nick = msg["sender_name"]
-      plot.set( nick, plot.get(nick)[0] + 1 )
+    i = ?a
+    ObjectSpace.each_object(Class).select do |cl|
+
+     unless cl < Plot
+       next
+     end
+
+     @@index[i] = cl
+     if verbose
+       puts tab(i, 3, true) + " | #{ cl::Name}"
+     end
+
+     i = (i.ord + 1 ).chr
+
+     if i == ?{
+       i = ?A
+     elsif i == ?[
+       puts "WARN: suffering from success... too many plot options"
+       break
+     end
+
     end
 
-    return plot
+    if verbose; puts; end
 
   end
 
-  def dailyMsgs 
-    nicks = @chat.nicks
-    plot = Plot.new( "daily messages", nicks.length, "day", nicks )
+  def select (index)
+
+    index.each_char do |i|
+      unless @@index.include? i
+        puts "invalid plot"
+        exit 1
+      end
+      if @plot.include? i
+        next
+      end
+      @plot += [ @@index[i].new(@chat) ]
+    end
+
+  end
+
+  def run
 
     @chat.msgs do |msg|
 
-      day = Time.at(msg["timestamp_ms"] / 1000).to_s[0..9]
-      nick = msg["sender_name"]
-
-      tmp = plot.get(day)
-
-      if tmp == nil
-        tmp = Array.new( nicks.length, 0 )
+      @plot.each do |plot|
+        plot.push msg
       end
 
-      for i in 0 .. nicks.length - 1
-        if nicks[i] == nick
-          tmp[i] += 1
+    end
+
+  end
+
+  def row (r)
+
+    buf = ""
+
+    @plot.each do |plot|
+
+      c = 0
+      if r < 2
+        p = plot.head(r)
+      else
+        p = plot.pull
+        if p.nil? 
+          return nil
         end
       end
-      
-      plot.set(day, tmp)
+
+      unless p.class == Array
+        p = [p]
+      end
+
+      p.each do |pp|
+        
+        unless pp.class == Array
+          pp = [pp]
+        end
+
+        pp.each do |cell|
+          buf += cell.to_s + "\t"
+          c += 1
+        end
+
+      end
 
     end
 
-    return plot
+    buf
 
-  end
-
-  def dailyReacts
-  end
-
-  def dailyFiles
-  end
-
-  def dailyCalls
   end
 
 end
