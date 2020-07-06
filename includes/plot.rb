@@ -1,41 +1,40 @@
 class Plot
 
-  @name
-  @ysNo
-  @legendX
-  @legendYs
+   Name = "Plot template"
+  @chat
+  @desc
   @data
+  @cols
 
-  def initialize (name, ysNo, legendX = "X", legendYs = "Y")
+  def initialize chat
+    @chat = chat
+    @desc = []
+    @data = {}
+    @cols = 0
+  end
 
-    @name     = name
-    @ysNo     = ysNo
-    @legendX  = legendX
-    @legendYs = legendYs
-    @data     = {}
+  def push msg
+  end
+
+  def pull
+    @data.shift
+  end
+
+  def rows
+
+    @data.length
 
   end
 
-  def set (x, ys)
+  def cols
+    @cols
+  end
 
-    if ys.class != Array
-      ys = [ys]
+  def head row
+    case row
+    when 0; Name
+    when 1; @desc
     end
-
-    @data[x] = ys
-
-  end
-
-  def get (x)
-    return @data[x]
-  end
-
-  def to_s
-    str = ""
-    @data.each do |x, ys|
-      str += "#{x}\t#{ys[0]}\n"
-    end
-    return str
   end
 
 end

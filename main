@@ -11,21 +11,65 @@ require_relative 'includes/dump'
 require_relative 'includes/plot'
 require_relative 'includes/stat'
 
-tree = Tree.new( $options[:archive] )
-tree.index( ! $options[:index] )
+Dir[__dir__ + "/plots/*"].each do |plot|
+  require plot
+end
 
-unless $options[:index]
+parse
+if $options[:list]
+
+  unless $options[:chat] or $options[:plot]
+    puts "use with -i -p"
+    exit 1
+  end
+
+  if $options[:chat]
+    tree = Tree.new( $options[:facebook] )
+    tree.index($options[:archived], true)
+  end
+  if $options[:plot]
+    Stat::index
+  end
+
+  exit
+
+end
+
+tree = Tree.new( $options[:facebook] )
+dump = Dump.new( $options[:output] )
+
+if $options[:chat] == true
+  $options[:chat] = nil
+end
+
+tree.index( $options[:archived], ! $options[:chat] )
+
+unless $options[:chat]
   print "select: "
-  $options[:index] = gets.to_i
+  $options[:chat] = STDIN.gets.to_i
   puts
 end
 
-chat = tree.select( $options[:index] )
+chat = tree.select( $options[:chat] )
 unless chat.valid?
   puts "invalid chat"
   exit 1
 end
 
+if $options[:plot] == true
+  $options[:plot] = nil
+end
+
 stat = Stat.new(chat)
-plot = stat.dailyMsgs
-puts plot
+Stat.index( ! $options[:plot] )
+
+unless $options[:plot]
+  print "select: "
+  $options[:plot] = STDIN.gets.to_s[0..-2]
+  puts
+end
+
+stat.select( $options[:plot] )
+stat.run
+
+dump.write stat

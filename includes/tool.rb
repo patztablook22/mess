@@ -1,3 +1,17 @@
+def nchr(n, chr)
+
+  buf = ""
+  
+  for i in 1..n
+    buf += chr
+  
+  end
+  
+  buf
+
+end
+   
+
 def tab(str, max, right = false)
 
   str = str.to_s
@@ -7,9 +21,7 @@ def tab(str, max, right = false)
     buf += str
   end
 
-  for i in 1 .. max - str.length
-    buf += ' '
-  end
+  buf += nchr(max - str.length, ' ')
 
   if right
     buf += str
