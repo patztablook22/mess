@@ -7,8 +7,8 @@ class DailyMsgs < Plot
   @latest
 
   def initialize chat
-    super chat
-    @usrs  = @chat.usrs
+    super
+    @usrs  = chat.usrs
     @cols  = @usrs.length + 1
     @descX = "day"
     @descY = @usrs

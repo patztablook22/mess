@@ -1,4 +1,5 @@
 $options = {
+    :list       => false,
     :facebook   => ".",
     :output     => "mess.txt",
     :separator  => "\t",
@@ -6,7 +7,7 @@ $options = {
     :archived   => false,
     :chat       => nil,
     :plot       => nil,
-    :list       => false,
+    :depth      => 0,
 }
 
 def parse
@@ -50,6 +51,10 @@ def parse
       $options[:margin] = str
     end
 
+    opts.on("-r", "--archived", "include archived chats") do
+      $options[:archived] = true
+    end
+
     opts.on("-c", "--chat [NUM]", "select chat") do |chat|
       if chat.nil? or chat.empty?
         $options[:chat] = true
@@ -66,10 +71,13 @@ def parse
       end
     end
 
-    opts.on("-r", "--archived", "include archived chats") do
-      $options[:archived] = true
+    opts.on("-d", "--depth [LVL]", "dimensional depth") do |depth|
+      if dept.nil? or depth.empty?
+        return
+      end
+      $options[:depth] = depth
     end
-    
+
   end
 
   begin

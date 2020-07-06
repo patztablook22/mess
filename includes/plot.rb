@@ -1,14 +1,12 @@
 class Plot
 
    Name = "Plot template"
-  @chat
   @descX
   @descY
   @data
   @cols
 
   def initialize chat = nil
-    @chat = chat
     @descX = ""
     @descY = []
     @data = {}

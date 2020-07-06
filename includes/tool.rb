@@ -1,17 +1,3 @@
-def nstr( n, str )
-
-  buf = ""
-  
-  for i in 1..n
-    buf += str
-  
-  end
-  
-  buf
-
-end
-   
-
 def tab( str, max, right = false )
 
   str = str.to_s
@@ -21,7 +7,7 @@ def tab( str, max, right = false )
     buf += str
   end
 
-  buf += nstr(max - str.length, ' ')
+  buf += " " * (max - str.length)
 
   if right
     buf += str
@@ -86,10 +72,10 @@ class Bar
     end
 
     str = "#{@perc}%"
-    out = nstr(@last.length, "\b") + str
+    out = "\b" * @last.length + str
 
     if @iter == @max
-      out = nstr(@last.length, "\b") + "done\n"
+      out = "\b" * @last.length + "done\n"
       unlock
     end
 

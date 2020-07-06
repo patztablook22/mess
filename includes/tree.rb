@@ -30,19 +30,13 @@ class Tree
 
   def check( root )
 
-    unless File.directory? root
-      return false
-    end
+    required = [
+      root,
+      root + "/inbox",
+      root + "/archived_threads",
+    ]
 
-    unless File.directory? root + "/inbox"
-      return false
-    end
-
-    unless File.directory? root + "/archived_threads"
-      return false
-    end
-
-    return true
+    required.all? { |dir| File.directory? dir }
 
   end
 

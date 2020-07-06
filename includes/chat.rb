@@ -18,7 +18,6 @@ class Chat
       end
 
       file = path + "/message_" + i.to_s + ".json"
-      raw = ""
 
       begin
 
@@ -64,7 +63,7 @@ class Chat
   end
 
   def msgs
-    @hash["messages"].each do |msg|
+    @hash["messages"].reverse_each do |msg|
       yield msg
     end
   end
