@@ -1,15 +1,11 @@
 class Tree
 
   @root
-  @indexed
+  @index
 
   def initialize (path)
 
-    @indexed = {}
-
-    if path.nil? or path.empty?
-      path = "."
-    end
+    @index = {}
 
     path = File.expand_path(path)
     begin 
@@ -50,7 +46,7 @@ class Tree
 
   end
 
-  def index (verbose, archived = false)
+  def index (archived, verbose = false)
 
     dirs = ["inbox"]
     chats = []
@@ -64,7 +60,7 @@ class Tree
     end
 
     if verbose
-      puts "\nchat index:\n"
+      puts "\nchat index:"
     end
 
     i = 1
@@ -83,7 +79,7 @@ class Tree
         puts tab(i, 3, true) + " | " + title
       end
 
-      @indexed[i] = chat.path
+      @index[i] = chat.path
 
       i += 1
 
@@ -93,8 +89,8 @@ class Tree
 
   end
 
-  def select (index)
-    Chat.new( @indexed[index.to_i].to_s )
+  def select (i)
+    Chat.new( @index[i.to_i].to_s )
   end
 
 end
