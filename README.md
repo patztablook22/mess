@@ -10,7 +10,7 @@ provide the program with **JSON** (!) Facebook archive _(as opposed to HTML form
 
 ## Examples
 Call `main` either directly or via link.
-```
+```bash
 
 # print help
 main --help 
