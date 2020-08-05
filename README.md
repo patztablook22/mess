@@ -1,28 +1,28 @@
 # mess
 
-a simple ruby messenger statistician
+Ruby program to analyze Facebook Messenger JSON archive and extract statistics therefrom.
 
 ## Dependencies
   - ruby
 
 ## Facebook archive
-provide the program with **JSON** (!) Facebook archive
-
-## Manual
-Call `main` either directly or via link.
-`main --help` for help. Quite self-explanatory.
+provide the program with **JSON** (!) Facebook archive _(as opposed to HTML format)_
 
 ## Examples
-```bash
+Call `main` either directly or via link.
+```
 
-# to list indexed chats and plots
-mess/main --facebook ~/MyData/facebook --list --chat --plot
+# print help
+main --help 
 
-# to process chat "4", enabling plots "a" and "d"
-mess/main -f ~/MyData/facebook -c 4, -p ad
+# guided analysis of given archive
+main --facebook my/facebook/archive
 
-# help
-mess/main --help
+# analysis specifying chat and plots
+main --facebook my/facebook/archive --chat 3 --plot asdf
+
+# list all available chats and plots for given archive
+main --facebook my/facebook/archive --list --chat --plot
 
 ```
 
