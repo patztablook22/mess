@@ -17,6 +17,7 @@ class Plot
   end
 
   def post
+    @data = @data.sort
   end
 
   def pull

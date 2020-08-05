@@ -55,6 +55,8 @@ class DailyMsgs < Plot
 
     end while tmp > @oldest
 
+    super
+
   end
 
 end
