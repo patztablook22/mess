@@ -4,8 +4,12 @@
 require 'slop'
 require_relative '../lib/mess'
 
+$listing = Array.new
+
 begin
   opts = Slop.parse do |o|
+
+    o.banner = "usage: #{$0} [options] target"
 
     o.on '--help', 'print help' do
       puts o
@@ -19,13 +23,25 @@ begin
 
     o.bool '--archived', '-a', 'archived threads too', default: false
 
+    o.bool '--list', '-l', 'listing mode'
+
+    o.array '--chat', '-c', 'chat specification' do
+      $listing << :chats
+    end
+
+    o.array '--plot', '-p', 'plot specification' do
+      $listing << :plots
+    end
+
   end
+rescue Slop::MissingArgument => e
+  p e.message
 rescue Slop::UnknownOption => e
   puts e
   exit 1
 end
 
-target = opts.arguments
+target = opts&.arguments || Array.new
 target << '.' if target.none?
 
 if target.one?
@@ -33,6 +49,56 @@ if target.one?
 else
   $stderr.puts 'too many targets'
   exit 1
+end
+
+def list_chats tree
+  puts "chats"
+  tree.chats.each_with_index do |chat, index|
+    index += 1
+    index  = index.to_s.rjust(5)
+    puts "#{index} | #{chat.title}"
+  end
+end
+
+def list_plots plots
+  puts "plots"
+  index = 1
+  plots.available.each_pair do |name, desc|
+    puts "#{index.to_s.rjust(5)} | #{name.ljust(15)} -> #{desc}"
+    index += 1
+  end
+end
+
+# listing mode
+if opts.list?
+
+  # chats
+  if $listing.include? :chats
+    begin
+      tree = Mess::Tree.new(target)
+      puts
+      list_chats tree
+    rescue Mess::TreeInvalidError
+      $stderr.puts "not an archive: #{target}"
+      exit 1
+    end
+  end
+
+  # plots
+  if $listing.include? :plots
+    puts
+    list_plots Mess::Plot
+  end
+
+  # none
+  if $listing.none?
+    $stderr.puts 'no specification flag for listing'
+    exit 1
+  end
+
+  puts
+  exit
+
 end
 
 begin
@@ -44,35 +110,73 @@ rescue Mess::ChatInvalidError
 
   # given tree
   begin
-    tree = Mess::Tree.new(target, archived: opts[:archived])
+    tree = Mess::Tree.new(target, archived: opts.archived?)
   rescue Mess::TreeInvalidError
-    $stderr.puts 'not a chat/archive'
+    $stderr.puts "not a chat/archive: #{target}"
     exit 1
   end
 
-  # list chats
-  tree.chats.each_with_index do |chat, index|
-    index += 1
-    index  = index.to_s.rjust(5)
-    puts "#{index} | #{chat.title}"
-  end
-
   # select chat
-  index = nil
+  input  = opts[:chat].join
+  chat   = nil
+  failed = false
   loop do
-    print 'select> '
-    index = $stdin.gets.chomp
-    # must be a number within the listed range
-    break if index == index.to_i.to_s \
-      and (1..tree.chats.size).include? index.to_i
-    puts 'enter a valid index'
-  end
 
-  chat = tree.chats[index.to_i - 1]
+    # search for nick or index
+    chat   = tree.chats.find { |c| c.title == input }
+    chat ||= tree.chats[input.to_i - 1] if input.to_i.to_s == input and (1..tree.chats.size).include? input.to_i
+    unless chat.nil?
+      puts if failed
+      break
+    end
+
+    # failed
+    puts
+    list_chats tree unless failed
+    failed = true
+
+    print 'select> '
+    input = $stdin.gets.chomp
+
+  end
 
 end
 
-puts chat.title
-puts chat.count
+# select plot
+input  = opts[:plot]
+plot   = nil
+failed = false
+loop do
+
+  # map indexes to names
+  input.map! do |p|
+    if p.to_i.to_s == p and (1..Mess::Plot.available.size).include? p.to_i
+      Mess::Plot.available.keys[p.to_i - 1]
+    else
+      p
+    end
+  end
+
+  # validate names
+  if input.any? and input.all? { |p| Mess::Plot.available.include? p }
+    plot = Set.new(input)
+    puts if failed
+    break
+  end
+
+  # failed
+  puts
+  list_plots Mess::Plot unless failed
+  failed = true
+  print 'select> '
+  input = $stdin.gets.strip.split(/[, ]/).compact
+
+end
+
+plot.map! do |p|
+  Mess.const_get(p).new(chat)
+end
+
+
 
 
