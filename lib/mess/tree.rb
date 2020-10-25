@@ -66,6 +66,8 @@ module Mess
         end
       end
 
+      @chats.sort! { |a, b| a.title <=> b.title }
+
     end
 
     def select i

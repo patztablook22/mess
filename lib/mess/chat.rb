@@ -56,7 +56,7 @@ module Mess
     def get_json file
       buffer   = JSON.parse(File.read(file))
       @title ||= buffer['title']
-      @usrs  ||= buffer['participants'].map { |p| p['name'] }
+      @usrs  ||= buffer['participants'].map{ |p| p['name'] }.sort
       @msgs   += buffer['messages']
     end
 
