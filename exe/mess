@@ -4,20 +4,25 @@
 require 'slop'
 require_relative '../lib/mess'
 
-opts = Slop.parse do |o|
+begin
+  opts = Slop.parse do |o|
 
-  o.on '--help', 'print help' do
-    puts o
-    exit
+    o.on '--help', 'print help' do
+      puts o
+      exit
+    end
+
+    o.on '--version', 'print version' do
+      puts Mess::VERSION
+      exit
+    end
+
+    o.bool '--archived', '-a', 'archived threads too', default: false
+
   end
-
-  o.on '--version', 'print version' do
-    puts Mess::VERSION
-    exit
-  end
-
-  o.bool '--archived', '-a', 'archived threads too', default: false
-
+rescue Slop::UnknownOption => e
+  puts e
+  exit 1
 end
 
 target = opts.arguments
