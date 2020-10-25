@@ -1,76 +1,23 @@
 module Mess
   class Chat
 
-    @hash
-    attr_reader :path
+    attr_reader :path, :title, :usrs, :msgs
 
-    def initialize path, peek = false
+    def initialize path
+      @path = path
+      if File.file? @path
 
-      unless File.file?(path + "/message_1.json")
-        return
-      end
+        buffer = JSON.parse(File.read(@path))
+        @title = buffer['title']
+        @usrs  = buffer['participants'].map { |p| p['name'] }
+        @msgs  = buffer['messages']
 
-      total = Dir[path + "/*"].length
-
-      for i in 1..total
-
-        if peek and i > 1
-          break
-        end
-
-        file = path + "/message_" + i.to_s + ".json"
-
-        begin
-
-          raw = File.read(file)
-
-          if i == 1 
-            @hash = JSON.parse(raw)
-          else
-            @hash["messages"] += JSON.parse(raw)["messages"]
-          end
-
-        rescue
-
-          puts "unable to parse JSON file"
-          exit 1
-
-        end
-
-        @path = path
-
-      end
-
-    end
-
-    def valid?
-      @hash
-    end
-
-    def path
-      @path
-    end
-
-    def title
-      @hash["title"]
-    end
-
-    def usrs
-      usrs = []
-      @hash["participants"].each do |p|
-        usrs += [ p["name"] ]
-      end
-      usrs
-    end
-
-    def msgs
-      @hash["messages"].reverse_each do |msg|
-        yield msg
+      else
       end
     end
 
-    def size
-      @hash["messages"].length
+    def count
+      @msgs.size
     end
 
   end
