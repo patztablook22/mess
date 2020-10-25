@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'json'
+require 'json'
 require_relative 'mess/version'
 
 module Mess
@@ -14,4 +14,5 @@ module Mess
 =end
 end
 
+require_relative 'mess/plot'
 Dir["#{__dir__}/mess/**/*.rb"].each { |f| require_relative f }
