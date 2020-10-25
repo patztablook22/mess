@@ -22,7 +22,7 @@ begin
       exit
     end
 
-    o.string '--output', '-o', 'output file'
+    o.string '--output', '-o', 'output file', default: 'mess_out.txt'
 
     o.bool '--archived', '-a', 'archived threads too', default: false
 
@@ -196,7 +196,7 @@ chat.msgs.each_with_index do |m, i|
     check += pcapx
   end
   plot.each do |p|
-    #p.push m
+    p.push m
   end
 end
 $stdout.cursor_up 1
@@ -210,4 +210,18 @@ plot.each_with_index do |p, i|
   p.review
 end
 $stdout.cursor_up 1
-puts "reviewing... done"
+puts 'reviewing... done'
+
+# export
+puts 'exporting...'
+data = Hash.new
+plot.each do |p|
+  data[p.class.name] = p.data
+end
+$stdout.cursor_up 1
+
+File.open(opts[:output], 'w') do |f|
+  f.puts data.to_json
+end
+
+puts 'exporting... done'
