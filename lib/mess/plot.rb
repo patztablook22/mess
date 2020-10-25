@@ -3,31 +3,27 @@ module Mess
 
     @@available = Hash.new
 
-    def self.describe desc
-      name = self.to_s.match(/Mess::(?<name>\w+)$/)[:name]
-      @@available[name] = desc
-    end
-
     def self.available
       @@available
     end
 
-    def initialize
+    def self.describe desc
+      @@available[name] = desc
     end
 
-    def push
+    def self.name
+      self.to_s.match(/Mess::(?<name>\w+)$/)[:name]
     end
 
-    def post
+    attr_reader :data
+
+    def initialize chat
     end
 
-    def pull
+    def push msg
     end
 
-    def rows
-    end
-
-    def cols
+    def review
     end
 
   end

@@ -4,15 +4,16 @@ module Mess
     describe "total messages by user"
 
     def initialize chat
-      super
-      @descX = "user"
-      @descY = "messages"
-      @cols  = 2
+      @data = Hash.new
+      chat.usrs.each do |u|
+        @data[u] = 0
+      end
     end
 
     def push msg
-      nick = msg["sender_name"]
-      @data[nick] = @data[nick].to_i + 1
+      usr = msg["sender_name"]
+      return if usr.empty?
+      @data[usr] += 1
     end
 
   end
