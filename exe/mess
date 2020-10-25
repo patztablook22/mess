@@ -16,17 +16,58 @@ opts = Slop.parse do |o|
     exit
   end
 
-  o.int '-c', '--chat', 'chat index'
+  o.bool '--archived', '-a', 'archived threads too', default: false
 
 end
 
 target = opts.arguments
 target << '.' if target.none?
 
-if target.size > 1
+if target.one?
+  target = target.first
+else
   $stderr.puts 'too many targets'
   exit 1
 end
 
-c = Mess::Chat.new(target.first)
+begin
+
+  # given directly chat
+  chat = Mess::Chat.new(target)
+
+rescue Mess::ChatInvalidError
+
+  # given tree
+  begin
+    tree = Mess::Tree.new(target, archived: opts[:archived])
+  rescue Mess::TreeInvalidError
+    $stderr.puts 'not a chat/archive'
+    exit 1
+  end
+
+  # list chats
+  tree.chats.each_with_index do |chat, index|
+    index += 1
+    index  = index.to_s.rjust(5)
+    puts "#{index} | #{chat.title}"
+  end
+
+  # select chat
+  index = nil
+  loop do
+    print 'select> '
+    index = $stdin.gets.chomp
+    # must be a number within the listed range
+    break if index == index.to_i.to_s \
+      and (1..tree.chats.size).include? index.to_i
+    puts 'enter a valid index'
+  end
+
+  chat = tree.chats[index.to_i - 1]
+
+end
+
+puts chat.title
+puts chat.count
+
 
