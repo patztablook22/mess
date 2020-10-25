@@ -1,7 +1,7 @@
 module Mess
-  class TotalMsgs < Plot
+  class TotalLetters < Plot
 
-    describe "total messages by user"
+    describe "total letters per user"
 
     def initialize chat
       @data = Hash.new
@@ -12,7 +12,8 @@ module Mess
 
     def push msg
       usr = msg["sender_name"]
-      @data[usr] += 1
+      letters = msg["content"].to_s.length
+      @data[usr] += letters
     end
 
   end

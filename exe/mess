@@ -188,7 +188,6 @@ puts 'preparing... done'
 total = chat.count
 pcapx = total / 100
 check = 0
-puts
 chat.msgs.each_with_index do |m, i|
   if i >= check
     $stdout.cursor_up 1
@@ -196,7 +195,7 @@ chat.msgs.each_with_index do |m, i|
     check += pcapx
   end
   plot.each do |p|
-    p.push m
+    p.push m #rescue nil
   end
 end
 $stdout.cursor_up 1
@@ -213,6 +212,7 @@ $stdout.cursor_up 1
 puts 'reviewing... done'
 
 # export
+$stdout.cursor_up 1
 puts 'exporting...'
 data = Hash.new
 plot.each do |p|
