@@ -3,7 +3,7 @@
 module Mess
   class Chat
 
-    attr_reader :path, :title, :usrs, :msgs
+    attr_reader :path, :title, :usrs
 
     def initialize path
       @path = File.expand_path path
@@ -35,20 +35,30 @@ module Mess
       get = method("get_#{ext}")
 
       # chronologically iterate through message_X.ext chat files
-      i = 1
-      loop do
-        file = "#@path/message_#{i}.#{ext}"
-        break unless File.file? file
+      # decrementally for some reason reee
+      total = Dir["#@path/message_*\\.#{ext}"].size
+      for i in (0...total)
+        file = "#@path/message_#{total - i}.#{ext}"
         get.call(file) rescue raise ChatInvalidError
-        i += 1
       end
 
       @title = '*you*' if @title.empty?
+      @ready = false
 
     end
 
     def count
       @msgs.size
+    end
+
+    def prepare
+      @msgs.sort! { |a, b| a['timestamp_ms'] <=> b['timestamp_ms'] }
+    end
+
+    def msgs
+      prepare unless @ready
+      @ready = true
+      @msgs
     end
 
     private

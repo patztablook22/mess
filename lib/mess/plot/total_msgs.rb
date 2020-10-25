@@ -1,7 +1,7 @@
 module Mess
   class TotalMsgs < Plot
 
-    describe "total messages by user"
+    describe 'total messages by user'
 
     def initialize chat
       @data = Hash.new
@@ -11,7 +11,7 @@ module Mess
     end
 
     def push msg
-      usr = msg["sender_name"]
+      usr = msg['sender_name']
       @data[usr] += 1
     end
 

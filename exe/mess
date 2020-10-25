@@ -178,7 +178,10 @@ end
 
 # prepare
 puts 'preparing...'
+i = 1
 plot.map! do |p|
+  $stdout.cursor_up 1
+  puts "preparing... #{i}/#{plot.size}"
   Mess.const_get(p).new(chat)
 end
 $stdout.cursor_up 1
@@ -191,7 +194,7 @@ check = 0
 chat.msgs.each_with_index do |m, i|
   if i >= check
     $stdout.cursor_up 1
-    puts "analyzing... #{100 * i / total}%"
+    puts "analyzing... #{100 * i / total}%  "
     check += pcapx
   end
   plot.each do |p|
