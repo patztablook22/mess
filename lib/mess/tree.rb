@@ -1,12 +1,13 @@
+# frozen_string_literal: true
+
 module Mess
   class Tree
 
-    @root
-    @index
+    attr_reader :root, :chats
 
-    def initialize path
+    def initialize path, flags = Hash.new
 
-      @index = {}
+      # find the root from given path
 
       path = File.expand_path(path)
       begin 
@@ -15,72 +16,55 @@ module Mess
           break
         end
 
-        if check (path)
-          @root = path + "/"
-          return
+        if check(path)
+          @root = path
+          break
         else
           next
         end 
 
       end until (path = File.dirname(path)) == "/"
 
-      puts "messages archive root - archive not valid"
-      exit 1
+      raise TreeInvalidError if @root.nil?
+      
+      import flags[:archived]
 
     end
 
     def check root
-
-      required = [
-        root,
-        root + "/inbox",
-        root + "/archived_threads",
-      ]
-
-      required.all? { |dir| File.directory? dir }
-
+      [
+        '/',
+        '/inbox',
+        '/archived_threads',
+      ].all? { |dir| File.directory?(root + dir) }
     end
 
-    def index archived, verbose = false
+    private
 
-      dirs = ["inbox"]
-      chats = []
+    def import archived
 
-      if archived
-        dirs += ["archived_threads"]
-      end
+      @chats = Array.new
 
-      dirs.each do |dir|
-        chats += Dir[ @root + dir + "/*" ]
-      end
+      box = Array.new
+      box << 'inbox'
+      box << 'archived_threads' if archived
 
-      if verbose
-        puts "\nchat index:"
-      end
+      # find all text chat dirs
+      box.each do |b|
+        Dir["#@root/#{b}/*"].each do |dir|
 
-      i = 1
-      chats.each do |chat|
+          # exclude asset dirs (capitalized)
+          base = File.basename dir
+          next unless base.downcase == base
 
-        chat = Chat.new(chat, true)
-        unless chat.valid?
-          next
-        end
-
-        if verbose
-          title = chat.title
-          if title.empty?
-            title = "*you*"
+          # list it
+          begin
+            @chats << Chat.new(dir)
+          rescue
           end
-          puts tab(i, 3, true) + " | " + title
+
         end
-
-        @index[i] = chat.path
-
-        i += 1
-
       end
-
-      if verbose; puts; end
 
     end
 
