@@ -43,6 +43,8 @@ module Mess
         i += 1
       end
 
+      @title = '*you*' if @title.empty?
+
     end
 
     def count
