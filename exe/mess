@@ -5,6 +5,8 @@ require 'io/console'
 require 'slop'
 require_relative '../lib/mess'
 
+Signal.trap('INT') { exit }
+
 $listing = Array.new
 
 begin
