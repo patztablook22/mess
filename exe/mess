@@ -202,7 +202,7 @@ chat.msgs.each_with_index do |m, i|
   end
 end
 $stdout.cursor_up 1
-puts "analyzing... done"
+puts 'analyzing... done'
 
 # review
 puts
