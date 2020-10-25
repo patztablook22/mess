@@ -1,1 +1,32 @@
 #! /usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'slop'
+require_relative '../lib/mess'
+
+opts = Slop.parse do |o|
+
+  o.on '--help', 'print help' do
+    puts o
+    exit
+  end
+
+  o.on '--version', 'print version' do
+    puts Mess::VERSION
+    exit
+  end
+
+  o.int '-c', '--chat', 'chat index'
+
+end
+
+target = opts.arguments
+target << '.' if target.none?
+
+if target.size > 1
+  $stderr.puts 'too many targets'
+  exit 1
+end
+
+c = Mess::Chat.new(target.first)
+

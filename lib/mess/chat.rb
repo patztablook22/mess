@@ -1,75 +1,77 @@
-class Chat
+module Mess
+  class Chat
 
-  @hash
-  @path
+    @hash
+    attr_reader :path
 
-  def initialize( path, peek = false )
-  
-    unless File.file?(path + "/message_1.json")
-      return
-    end
+    def initialize path, peek = false
 
-    total = Dir[path + "/*"].length
-
-    for i in 1..total
-
-      if peek and i > 1
-        break
+      unless File.file?(path + "/message_1.json")
+        return
       end
 
-      file = path + "/message_" + i.to_s + ".json"
+      total = Dir[path + "/*"].length
 
-      begin
+      for i in 1..total
 
-        raw = File.read(file)
-
-        if i == 1 
-          @hash = JSON.parse(raw)
-        else
-          @hash["messages"] += JSON.parse(raw)["messages"]
+        if peek and i > 1
+          break
         end
 
-      rescue
+        file = path + "/message_" + i.to_s + ".json"
 
-        puts "unable to parse JSON file"
-        exit 1
+        begin
+
+          raw = File.read(file)
+
+          if i == 1 
+            @hash = JSON.parse(raw)
+          else
+            @hash["messages"] += JSON.parse(raw)["messages"]
+          end
+
+        rescue
+
+          puts "unable to parse JSON file"
+          exit 1
+
+        end
+
+        @path = path
 
       end
 
-      @path = path
-      
+    end
+
+    def valid?
+      @hash
+    end
+
+    def path
+      @path
+    end
+
+    def title
+      @hash["title"]
+    end
+
+    def usrs
+      usrs = []
+      @hash["participants"].each do |p|
+        usrs += [ p["name"] ]
+      end
+      usrs
+    end
+
+    def msgs
+      @hash["messages"].reverse_each do |msg|
+        yield msg
+      end
+    end
+
+    def size
+      @hash["messages"].length
     end
 
   end
-
-  def valid?
-    @hash
-  end
-
-  def path
-    @path
-  end
-
-  def title
-    @hash["title"]
-  end
-
-  def usrs
-    usrs = []
-    @hash["participants"].each do |p|
-      usrs += [ p["name"] ]
-    end
-    usrs
-  end
-
-  def msgs
-    @hash["messages"].reverse_each do |msg|
-      yield msg
-    end
-  end
-
-  def size
-    @hash["messages"].length
-  end
-
 end
