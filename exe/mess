@@ -1,6 +1,7 @@
 #! /usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'io/console'
 require 'slop'
 require_relative '../lib/mess'
 
@@ -20,6 +21,8 @@ begin
       puts Mess::VERSION
       exit
     end
+
+    o.string '--output', '-o', 'output file'
 
     o.bool '--archived', '-a', 'archived threads too', default: false
 
@@ -173,10 +176,38 @@ loop do
 
 end
 
+# prepare
+puts 'preparing...'
 plot.map! do |p|
   Mess.const_get(p).new(chat)
 end
+$stdout.cursor_up 1
+puts 'preparing... done'
 
+# analyze
+total = chat.count
+pcapx = total / 100
+check = 0
+puts
+chat.msgs.each_with_index do |m, i|
+  if i >= check
+    $stdout.cursor_up 1
+    puts "analyzing... #{100 * i / total}%"
+    check += pcapx
+  end
+  plot.each do |p|
+    #p.push m
+  end
+end
+$stdout.cursor_up 1
+puts "analyzing... done"
 
-
-
+# review
+puts
+plot.each_with_index do |p, i|
+  $stdout.cursor_up 1
+  puts "reviewing... #{i + 1}/#{plot.size}"
+  p.review
+end
+$stdout.cursor_up 1
+puts "reviewing... done"
