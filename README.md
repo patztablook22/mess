@@ -1,6 +1,6 @@
 # mess
 
-Ruby tool for analysis of native Facebook Messenger Archives in JSON format. Output is universal (also JSON) and can thus be used by table processors (like MS Excell / LibreOffice Calc) and more!
+Ruby tool for analysis of Facebook Messenger conversations in JSON/HTML format. Output is table-processor-friendly (like MS Excell / LibreOffice Calc). Independently of `mess` executable, an API is provided for more nuanced use.
 
 ## Installation
 Ruby is required. You can download mess as a Ruby Gem:
@@ -22,14 +22,11 @@ Call `main` either directly or via link.
 # print help
 main --help 
 
-# guided analysis of given archive
-main --facebook my/facebook/archive
+# interactive prompt for given archive
+main my/facebook/information
 
 # analysis specifying chat and plots
-main --facebook my/facebook/archive --chat 3 --plot asdf
-
-# list all available chats and plots for given archive
-main --facebook my/facebook/archive --list --chat --plot
+main my/facebook/information/chat --plot DailyMsgs
 
 ```
 
