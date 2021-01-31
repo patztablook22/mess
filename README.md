@@ -38,9 +38,9 @@ Mess provides class `Mess::Plot` to be inherited for custom plots; \
 quick example (for more, see `mess/plots` dir):
 ```ruby
 module Mess
-  class MyPlot < Plot
+  class MyPlotter < Plotter
 
-    # this will make MyPlot "available"
+    # this will make MyPlotter "available"
     describe "my plot for magic analysis"
   
     def initialize chat     # constructor
@@ -56,8 +56,15 @@ module Mess
       end
     end
   
-    def review              # called after all messages have been push-ed
+    def finalize            # called after all messages have been push-ed
       # body                # perhaps reformat the data and so on
+    end
+    
+    def generate_plot       # output a unified-format plot for further manipulation
+      p = Plot.new
+      p.data = @data
+      p.head = @myHead
+      return p
     end
   
   end
