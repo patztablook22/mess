@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Mess
 
   class Error < StandardError
@@ -6,7 +8,7 @@ module Mess
   class ChatInvalidError < Error
   end
 
-  class TreeInvalidError < Error
+  class FacebookInformationInvalidError < Error
   end
 
 end

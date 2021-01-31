@@ -1,77 +1,83 @@
-# frozen_string_literal: true
+# frozen string_literal: true
+
+# Mess::Chat
+# class wrapping a single Messenger conversation (Group/Person)
+# initializer takes single conversation directory path as an argument
+# (contains text files, attachmed photos and other files etc.)
+# chat.title  -> get conversation tytle
+# chat.size   -> count messages
+# chat.usrs   -> participant list
+# chat.msgs   -> all messages
 
 module Mess
   class Chat
-
-    attr_reader :path, :title, :usrs
-
+    attr_reader :path, :title, :usrs, :msgs
+    
     def initialize path
-      @path = File.expand_path path
+      @path = File.expand_path(path)
 
-      # make sure path exists
-      unless File.exists? @path
-        raise ChatInvalidError
-      end
+      # make sure the path is somewhat valid
+      raise ChatInvalidError unless File.exists? @path
 
-      # if file, scope out to the whole chat dir
-      if File.file? @path
-        @path = File.dirname @path
-      end
+      # maybe given a file within the directory instead? -> scope out
+      @path = File.dirname(@path) if File.file? @path
 
+      # prepare data buffers
       @title = nil
       @usrs  = nil
       @msgs  = Array.new
 
-      # exactly one message_1.ext file should exist
-      tmp = Dir["#@path/message_1\\.*"]
-      raise ChatInvalidError unless tmp.one? 
-      tmp = tmp.first
+      # either .json or .html -> message_1.ext to find out the format
+      message_1 = Dir["#@path/message_1\\.*"]
+      raise ChatInvalidError unless message_1.one?
+      message_1 = message_1.first
+      extension = File.extname(message_1)
+      extension = extension[1..-1] # remove the dot in .ext
 
-      # also store its extension
-      ext = File.extname tmp # ".json" or ".html"...
-      ext = ext[1..-1]       #  "json" or  "html"...
+      # reference the get_extension function
+      get = method("get_#{extension}")
 
-      # reference the get_ext function
-      get = method("get_#{ext}")
-
-      # chronologically iterate through message_X.ext chat files
-      # decrementally for some reason reee
-      total = Dir["#@path/message_*\\.#{ext}"].size
-      for i in (0...total)
-        file = "#@path/message_#{total - i}.#{ext}"
-        get.call(file) rescue raise ChatInvalidError
+      # iterate through message_X.ext and use get method to parse the files
+      # do it chronologically -> descending X for messenger (reeee)
+      total = Dir["#@path/message_*\\.#{extension}"].size
+      total.downto(1) do |i|
+        file = "#@path/message_#{i}.#{extension}"
+        get.call(file) #rescue raise ChatInvalidError
       end
 
-      @title = '*you*' if @title.empty?
-      @ready = false
-
+      @title = '*you*' if @title.nil? or @title.empty?
+      @msgs.sort_by!(&:time)
     end
 
-    def count
+    def size
       @msgs.size
-    end
-
-    def prepare
-      @msgs.sort! { |a, b| a['timestamp_ms'] <=> b['timestamp_ms'] }
-    end
-
-    def msgs
-      prepare unless @ready
-      @ready = true
-      @msgs
     end
 
     private
 
+    # parse json file
     def get_json file
-      buffer   = JSON.parse(File.read(file))
+      # get data
+      buffer = File.read(file)
+      buffer = JSON.parse(buffer)
+
+      # get metadata if not already done before (each file contains it)
       @title ||= buffer['title']
       @usrs  ||= buffer['participants'].map{ |p| p['name'] }.sort
-      @msgs   += buffer['messages']
+
+      # append messages
+      buffer['messages'].each do |hash|
+        msg = Msg.new
+        msg.from = hash['sender_name']
+        msg.body = hash['content']
+        msg.time = hash['timestamp_ms']
+        msg.type = hash['type']
+        @msgs << msg
+      end
     end
 
+    # parse html file
     def get_html file
     end
-
   end
 end

@@ -1,29 +1,17 @@
 module Mess
   class Plot
+    attr_accessor :head, :data
 
-    @@available = Hash.new
-
-    def self.available
-      @@available
+    def initialize
+      @head = Array.new
+      @data = Array.new
     end
 
-    def self.describe desc
-      @@available[name] = desc
-    end
-
-    def self.name
-      self.to_s.match(/Mess::(?<name>\w+)$/)[:name]
-    end
-
-    attr_reader :data
-
-    def initialize chat
-    end
-
-    def push msg
-    end
-
-    def review
+    def export_data
+      puts @head.join("\t");
+      @data.each do |d|
+        puts d.join("\t");
+      end
     end
 
   end
