@@ -21,5 +21,6 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "slop", "~> 4.8"
+  spec.add_dependency "tty-prompt", "~> 0.23"
+  spec.add_dependency "tty-option", "~> 0.1"
 end

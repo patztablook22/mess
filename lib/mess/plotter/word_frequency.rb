@@ -41,8 +41,9 @@ module Mess
       return if msg.body.nil?
       words = msg.body.split(/[ \t\n]/)
       words.each do |w|
-        next if w.strip.empty?
-        w = w.downcase
+        w.strip!
+        next if w.empty?
+        w.downcase!
         @data[msg.from][w] = @data[msg.from][w].to_i + 1
       end
     end

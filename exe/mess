@@ -1,13 +1,125 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'io/console'
-require 'slop'
+require 'tty-option'
+require 'tty-prompt'
 require_relative '../lib/mess'
 
-Signal.trap('INT') { exit }
+class Command
+  include TTY::Option
 
-c = Mess::Chat.new('~/todo')
-plr = Mess::WordFrequency.new(c)
-plt = plr.run
-plt.export_data
+  usage do
+    program 'mess'
+    command "\b"
+    desc 'analyze conversation'
+
+  end
+
+  argument :path do
+    required
+    desc 'inbox or chat directory path'
+  end
+
+  flag :help do
+    long '--help'
+    desc 'Print usage'
+  end
+
+  flag :archived do
+    short '-a'
+    long '--archived'
+    desc 'list archived conversations too' 
+  end
+
+  flag :version do
+    long '--version'
+    desc 'print version'
+  end
+
+  option :plot do
+    short '-p'
+    long '--plot name'
+    desc 'plot to be generated'
+  end
+
+  option :output do
+    short '-o'
+    long '--output path'
+    desc 'output data path'
+  end
+
+  def run
+    if params[:help]
+      print help
+      exit
+    end
+
+    if params[:version]
+      puts Mess::VERSION
+      exit
+    end
+
+    if params[:path].nil?
+      print help
+      exit 1
+    end
+  end
+end
+
+cmd = Command.new
+cmd.parse.run
+
+prompt = TTY::Prompt.new
+
+todo = nil
+
+begin
+  todo = Mess::Chat.new(cmd.params[:path])
+rescue Mess::ChatInvalidError
+  begin
+    todo = Mess::FacebookInformation.new(cmd.params[:path], cmd.params[:archived])
+  rescue Mess::FacebookInformationInvalidError
+    puts 'path is not a chat nor an inbox'
+    exit 1
+  end
+end
+
+begin
+
+  if todo.class == Mess::FacebookInformation
+    todo = prompt.select(
+      'Select chat:',
+      todo.chats.map { |c| [c.title, c] }.to_h
+    )
+    #todo = todo.chats.find { |c| c.title == temp }
+  end
+
+  plot = cmd.params[:plot]
+
+  if Mess::Plotter.available.keys.include? plot
+    plot = Mess.const_get(plot)
+  else
+    plot = prompt.select(
+      'Select plot:',
+      Mess::Plotter.available.keys.map { |p| [p, Mess.const_get(p)] }.to_h
+    )
+  end
+
+  cmd.params[:output] ||= prompt.ask('Output path:', default: "./mess-out-#{Time.now.to_i}.txt")
+
+rescue TTY::Reader::InputInterrupt
+  puts
+  exit 1
+end
+
+p = plot.new(todo)
+r = p.run
+
+File.open(cmd.params[:output], 'w') do |f|
+  ([r.head] + r.data).each do |row|
+    row.each do |col|
+      f << col << "\t"
+    end
+    f << "\n"
+  end
+end
