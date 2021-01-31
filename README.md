@@ -49,7 +49,7 @@ module Mess
     end
   
     def push msg            # being called for every single message chronologically
-      if msg["sender_name"].include? "my"
+      if msg.body.include? "my"
         # do stuff
      else
         # don't etc.
