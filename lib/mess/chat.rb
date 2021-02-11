@@ -47,6 +47,7 @@ module Mess
 
       @title = '*you*' if @title.nil? or @title.empty?
       @msgs.sort_by!(&:time)
+      @usrs.sort!
     end
 
     def size
@@ -73,11 +74,13 @@ module Mess
         msg.time = hash['timestamp_ms']
         msg.type = hash['type']
         @msgs << msg
+        @usrs << msg.from unless @usrs.include? msg.from
       end
     end
 
     # parse html file
     def get_html file
+      raise ChatInvalidError
     end
   end
 end

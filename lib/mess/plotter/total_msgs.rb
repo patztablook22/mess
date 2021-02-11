@@ -10,12 +10,16 @@ module Mess
       @data = Hash.new
       chat.usrs.each do |u|
         @data[u] = 0
+        puts u
       end
     end
 
     private
 
     def push msg
+      unless @data.include? msg.from
+        puts msg.from
+      end
       @data[msg.from] += 1
     end
 
