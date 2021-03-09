@@ -1,6 +1,6 @@
 # mess
 
-Ruby tool for analysis of Facebook Messenger conversations in JSON format. Output is table-processor-friendly (like MS Excell / LibreOffice Calc). Independently of `mess` executable, an API is provided for more nuanced use.
+Ruby tool for analysis of Facebook Messenger conversations in JSON format. Output is spreadsheet-friendly (can be further processed in MS Excell / LibreOffice Calc / etc.). Independently of `mess` executable, an API is provided for more nuanced use.
 
 ## Installation
 Ruby is required. You can download mess as a Ruby Gem:
